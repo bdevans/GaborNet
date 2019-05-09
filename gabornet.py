@@ -62,7 +62,7 @@ def load_images(path):
 
 def get_kernel_tensor(ksize, sigmas, thetas, lambdas, gammas, psis):
 
-    n_kernels = len(sigmas) * len(thetas) * len(lambdas) * len(gammas)
+    n_kernels = len(sigmas) * len(thetas) * len(lambdas) * len(gammas) * len(psis)
     gabors = []
     for sigma in sigmas:
         for theta in thetas:
