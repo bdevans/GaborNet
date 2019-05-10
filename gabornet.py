@@ -97,6 +97,8 @@ parser = argparse.ArgumentParser()
 
 parser.add_argument('--data_set', type=str, default='cifar10',
                     help='Data set to use')
+parser.add_argument('--stimulus_set', type=str, default='static',
+                    help='Stimulus set to use')
 parser.add_argument('--trial_label', default='Trial1',
                     help='For labeling different runs of the same model')
 parser.add_argument('--filter_size', type=int, default=9,
@@ -120,6 +122,7 @@ parser.add_argument('--lambd', type=int, default=None,
 args = parser.parse_args()
 
 data_set = args.data_set
+stimulus_set = args.stimulus_set
 trial_label = args.trial_label
 filter_size = args.filter_size
 epochs = args.epochs
@@ -135,9 +138,9 @@ weights = None  # 'imagenet'
 input_shape = (32, 32, 1)  # (224, 224, 3)
 
 save_dir = os.path.join(os.getcwd(), 'results')  # TODO: /workspace/results
-data_set = 'pixel'
+# data_set = 'pixel'
 data_root = '/workspace/data/pixel/small'  # TODO: Pass in
-stimulus_set = 'static'  # 'jitter'  # 'static'  # 'set_32_32'
+# stimulus_set = 'static'  # 'jitter'  # 'static'  # 'set_32_32'
 noise_types = ['Original', 'Salt-and-pepper', 'Additive', 'Single-pixel']
 test_conditions = ['Same', 'Diff', 'NoPix']
 
