@@ -156,7 +156,8 @@ if lambd:
     lambdas = [lambd]
 else:
     lambdas = [8, 16, 32, 64]
-psis = [0, np.pi/2, np.pi, 3*np.pi/2]  # [np.pi/2]
+n_phases = 4  # 1, 2, 4
+psis = np.linspace(0, 2*np.pi, n_phases, endpoint=False)  # [0, np.pi/2, np.pi, 3*np.pi/2]  # [np.pi/2]
 gammas = [0.5]
 
 # fresh_data = True
