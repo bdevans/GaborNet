@@ -167,7 +167,7 @@ num_classes = 10
 for noise_type in noise_types:
 
     model_name = f"{data_set}_{stimulus_set}_{noise_type}_{trial_label}"
-    print(model_name)
+    print("Running model:", model_name)
 
     if not os.path.isdir(save_dir):
         os.makedirs(save_dir)
