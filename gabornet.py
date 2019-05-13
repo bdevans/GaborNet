@@ -137,9 +137,10 @@ lambd = args.lambd
 weights = None  # 'imagenet'
 input_shape = (32, 32, 1)  # (224, 224, 3)
 
-save_dir = os.path.join(os.getcwd(), 'results')  # TODO: /workspace/results
+# save_dir = os.path.join(os.getcwd(), 'results')  # TODO: /workspace/results
+save_dir = os.path.join('/work', 'results', data_set, stimulus_set)
 # data_set = 'pixel'
-data_root = '/workspace/data/pixel/small'  # TODO: Pass in
+data_root = '/work/data/pixel/small'  # TODO: Pass in
 # stimulus_set = 'static'  # 'jitter'  # 'static'  # 'set_32_32'
 noise_types = ['Original', 'Salt-and-pepper', 'Additive', 'Single-pixel']
 test_conditions = ['Same', 'Diff', 'NoPix']
@@ -166,7 +167,8 @@ num_classes = 10
 
 for noise_type in noise_types:
 
-    model_name = f"{data_set}_{stimulus_set}_{noise_type}_{trial_label}"
+    # model_name = f"{data_set}_{stimulus_set}_{noise_type}_{trial_label}"
+    model_name = f"{noise_type}_{trial_label}"
     print("Running model:", model_name)
 
     if not os.path.isdir(save_dir):
