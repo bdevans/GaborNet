@@ -138,8 +138,9 @@ lambd = args.lambd
 weights = None  # 'imagenet'
 input_shape = (32, 32, 1)  # (224, 224, 3)
 
+project_root = os.path.realpath(os.pardir)
 # save_dir = os.path.join(os.getcwd(), 'results')  # TODO: /workspace/results
-save_dir = os.path.join('/work', 'results', data_set, stimulus_set)
+save_dir = os.path.join(project_root, 'results', data_set, stimulus_set)
 # data_set = 'pixel'
 data_root = '/work/data/pixel/small'  # TODO: Pass in
 # stimulus_set = 'static'  # 'jitter'  # 'static'  # 'set_32_32'
