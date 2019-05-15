@@ -119,6 +119,8 @@ parser.add_argument('--save_loss', type=int, default=0,
                     help='Flag to save loss')
 parser.add_argument('--lambd', type=int, default=None,
                     help='Gabor sinusoid wavelength')
+parser.add_argument('--sigma', type=int, default=None,
+                    help='Gabor Gaussian envelope standard deviation')
 
 args = parser.parse_args()
 
@@ -134,6 +136,7 @@ pretrained_model = args.pretrained_model
 n_gpus = args.n_gpus
 save_loss = args.save_loss
 lambd = args.lambd
+sigma = args.sigma
 
 weights = None  # 'imagenet'
 input_shape = (32, 32, 1)  # (224, 224, 3)
@@ -153,8 +156,13 @@ data_augmentation = False
 
 # Gabor filter parameters
 ksize = (25, 25)
-sigmas = [2, 4]
-thetas = np.linspace(0, 2*np.pi, 8, endpoint=False)  # [0, np.pi/4, np.pi/2, np.pi*3/4]
+if sigma:
+    sigmas = [sigma]
+    n_thetas = 16
+else:
+    sigmas = [2, 4]
+    n_thetas = 8
+thetas = np.linspace(0, 2*np.pi, n_thetas, endpoint=False)  # [0, np.pi/4, np.pi/2, np.pi*3/4]
 if lambd:
     lambdas = [lambd]
 else:
