@@ -115,7 +115,8 @@ parser.add_argument('--pretrained_model', type=str, default=None,
                     help='Pretrained model')
 parser.add_argument('--n_gpus', type=int, default=1,
                     help='Number of GPUs to train across')
-
+parser.add_argument('--save_loss', type=int, default=0,
+                    help='Flag to save loss')
 parser.add_argument('--lambd', type=int, default=None,
                     help='Gabor sinusoid wavelength')
 
@@ -131,7 +132,7 @@ fresh_data = args.fresh_data
 model_name = args.model_name
 pretrained_model = args.pretrained_model
 n_gpus = args.n_gpus
-
+save_loss = args.save_loss
 lambd = args.lambd
 
 weights = None  # 'imagenet'
@@ -333,8 +334,9 @@ for noise_type in noise_types:
     # model.save(model_path)
     np.save(os.path.join(save_dir, f'{model_name}_VALACC.npy'), hist.history['val_acc'])
     np.save(os.path.join(save_dir, f'{model_name}_ACC.npy'), hist.history['acc'])
-    np.save(os.path.join(save_dir, f'{model_name}_VALLOSS.npy'), hist.history['val_loss'])
-    np.save(os.path.join(save_dir, f'{model_name}_LOSS.npy'), hist.history['loss'])
+    if save_loss:
+        np.save(os.path.join(save_dir, f'{model_name}_VALLOSS.npy'), hist.history['val_loss'])
+        np.save(os.path.join(save_dir, f'{model_name}_LOSS.npy'), hist.history['loss'])
 
     cond_acc = {}
     cond_loss = {}
@@ -345,7 +347,8 @@ for noise_type in noise_types:
     print("Saving metrics: ", model.metrics_names)
     with open(os.path.join(save_dir, f'{model_name}_CONDVALACC.json'), "w") as jf:
         json.dump(cond_acc, jf)
-    with open(os.path.join(save_dir, f'{model_name}_CONDVALLOSS.json'), "w") as jf:
-        json.dump(cond_loss, jf)
+    if save_loss:
+        with open(os.path.join(save_dir, f'{model_name}_CONDVALLOSS.json'), "w") as jf:
+            json.dump(cond_loss, jf)
 
     print(f'Saved trained model at {model_path}')
