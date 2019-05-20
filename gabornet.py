@@ -158,18 +158,19 @@ data_augmentation = False
 ksize = (31, 31)
 if sigma:
     sigmas = [sigma]
-    n_thetas = 16
+    n_orients = 8
 else:
     sigmas = [2, 4]
-    n_thetas = 8
-thetas = np.linspace(0, 2*np.pi, n_thetas, endpoint=False)  # [0, np.pi/4, np.pi/2, np.pi*3/4]
+    n_orients = 4
+thetas = np.linspace(0, np.pi, n_orients, endpoint=False)  # [0, np.pi/4, np.pi/2, np.pi*3/4]
 if lambd:
     lambdas = [lambd]
 else:
     lambdas = [8, 16, 32, 64]
 n_phases = 4  # 1, 2, 4
 psis = np.linspace(0, 2*np.pi, n_phases, endpoint=False)  # [0, np.pi/2, np.pi, 3*np.pi/2]  # [np.pi/2]
-gammas = [0.5]
+n_ratios = 2  # 1, 2, 4
+gammas = np.linspace(1, 0, n_ratios, endpoint=False)
 
 # fresh_data = True
 batch_size = 64
