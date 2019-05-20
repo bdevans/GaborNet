@@ -155,7 +155,7 @@ data_augmentation = False
 
 
 # Gabor filter parameters
-ksize = (25, 25)
+ksize = (31, 31)
 if sigma:
     sigmas = [sigma]
     n_thetas = 16
