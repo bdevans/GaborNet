@@ -117,9 +117,9 @@ parser.add_argument('--n_gpus', type=int, default=1,
                     help='Number of GPUs to train across')
 parser.add_argument('--save_loss', type=int, default=0,
                     help='Flag to save loss')
-parser.add_argument('--lambd', type=int, default=None,
+parser.add_argument('--lambd', default=None,
                     help='Gabor sinusoid wavelength')
-parser.add_argument('--sigma', type=int, default=None,
+parser.add_argument('--sigma', default=None,
                     help='Gabor Gaussian envelope standard deviation')
 
 args = parser.parse_args()
