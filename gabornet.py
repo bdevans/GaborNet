@@ -99,6 +99,8 @@ parser.add_argument('--data_set', type=str, default='cifar10',
                     help='Data set to use')
 parser.add_argument('--stimulus_set', type=str, default='static',
                     help='Stimulus set to use')
+parser.add_argument('--noise_type', type=str, default=None,
+                    help='Noise mask to use')
 parser.add_argument('--trial_label', default='Trial1',
                     help='For labeling different runs of the same model')
 parser.add_argument('--filter_size', type=int, default=9,
@@ -126,6 +128,7 @@ args = parser.parse_args()
 
 data_set = args.data_set
 stimulus_set = args.stimulus_set
+noise_type = args.noise_type
 trial_label = args.trial_label
 filter_size = args.filter_size
 epochs = args.epochs
@@ -147,7 +150,10 @@ save_dir = os.path.join(project_root, 'results', data_set, stimulus_set)
 # data_set = 'pixel'
 data_root = '/work/data/pixel/small'  # TODO: Pass in
 # stimulus_set = 'static'  # 'jitter'  # 'static'  # 'set_32_32'
-noise_types = ['Original', 'Salt-and-pepper', 'Additive', 'Single-pixel']
+if noise_type is None:
+    noise_types = ['Original', 'Salt-and-pepper', 'Additive', 'Single-pixel']
+else:  # Run with a single noise mask
+    noise_types = [noise_type]
 test_conditions = ['Same', 'Diff', 'NoPix']
 
 pretrained_model = False
