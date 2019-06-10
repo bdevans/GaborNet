@@ -60,7 +60,31 @@ def load_images(path):
     return image_set, X[shuffle], y[shuffle]
 
 
-def get_kernel_tensor(ksize, sigmas, thetas, lambdas, gammas, psis):
+def get_dog_tensor(ksize, sigmas, r_sigmas) -> kx1tensor:
+    # run a 5x5 gaussian blur then a 3x3 gaussian blr
+    # blur5 = cv2.GaussianBlur(img,(5,5),0)
+    # blur3 = cv2.GaussianBlur(img,(3,3),0)
+
+    # s1 = sp.filter.gaussian_filter(img, k*sigma)
+    # s2 = sp.filter.gaussian_filter(img, sigma)
+    # dog = s1 - s2
+    n_kernels = len(sigmas) * len(r_sigmas)
+    kernels = []
+    for sigma in sigmas:
+        g_c = cv2.getGaussianKernel(ksize, sigma, ktype=cv2.CV_32F)
+        for r_sigma in r_sigmas:
+            g_s = cv2.getGaussianKernel(ksize, r_sigma*sigma, ktype=cv2.CV_32F)
+            dog = g_c - g_s
+            # dog /= np.sum(dog)  # Normalise
+            dog = K.expand_dims(dog, -1)
+            dog_on, dog_off = dog, dog * -1
+            kernels.extend([dog_on, dog_off])
+    assert len(kernels) == n_kernels
+    print(f"Created {n_kernels} kernels.")
+    return K.stack(kernels)
+
+
+def get_gabor_tensor(ksize, sigmas, thetas, lambdas, gammas, psis):
 
     n_kernels = len(sigmas) * len(thetas) * len(lambdas) * len(gammas) * len(psis)
     gabors = []
@@ -78,7 +102,7 @@ def get_kernel_tensor(ksize, sigmas, thetas, lambdas, gammas, psis):
     return K.stack(gabors, axis=-1)
 
 
-def gabor_filter(x, kernel_tensor=None):
+def convolve_tensor(x, kernel_tensor=None):
     '''
     conv2d
     input tensor of shape [batch, in_height, in_width, in_channels]
@@ -88,8 +112,8 @@ def gabor_filter(x, kernel_tensor=None):
     return K.conv2d(x, kernel_tensor, padding='same')
 
 
-def lambda_output_shape(input_shape):
-    return input_shape
+# def lambda_output_shape(input_shape):
+#     return input_shape
 
 
 # Instantiate the parser
@@ -103,7 +127,9 @@ parser.add_argument('--noise_type', type=str, default=None,
                     help='Noise mask to use')
 parser.add_argument('--trial_label', default='Trial1',
                     help='For labeling different runs of the same model')
-parser.add_argument('--filter_size', type=int, default=9,
+parser.add_argument('--filter_type', type=str, default='gabor',
+                    help='Convolutional filter type')
+parser.add_argument('--filter_size', type=int, default=31,
                     help='Convolutional filter size')
 parser.add_argument('--epochs', type=int, default=20,
                     help='Number of epochs to train model')
@@ -122,7 +148,9 @@ parser.add_argument('--save_loss', type=int, default=0,
 parser.add_argument('--lambd', type=float, default=None,
                     help='Gabor sinusoid wavelength')
 parser.add_argument('--sigma', type=float, default=None,
-                    help='Gabor Gaussian envelope standard deviation')
+                    help='Gabor/DoG Gaussian envelope standard deviation')
+parser.add_argument('--r_sigma', type=float, default=None,
+                    help='DoG ratio of standard deviations: sigma_s/sigma_c')
 
 args = parser.parse_args()
 
@@ -130,6 +158,7 @@ data_set = args.data_set
 stimulus_set = args.stimulus_set
 noise_type = args.noise_type
 trial_label = args.trial_label
+filter_type = args.filter_type.lower()
 filter_size = args.filter_size
 epochs = args.epochs
 data_augmentation = args.data_augmentation
@@ -146,7 +175,7 @@ input_shape = (32, 32, 1)  # (224, 224, 3)
 
 project_root = os.path.realpath(os.pardir)
 # save_dir = os.path.join(os.getcwd(), 'results')  # TODO: /workspace/results
-save_dir = os.path.join(project_root, 'results', data_set, stimulus_set)
+save_dir = os.path.join(project_root, 'results', filter_type, data_set, stimulus_set)
 # data_set = 'pixel'
 data_root = '/work/data/pixel/small'  # TODO: Pass in
 # stimulus_set = 'static'  # 'jitter'  # 'static'  # 'set_32_32'
@@ -160,23 +189,45 @@ pretrained_model = False
 data_augmentation = False
 
 
-# Gabor filter parameters
-ksize = (31, 31)
-if sigma:
-    sigmas = [sigma]
-    n_orients = 8
+if filter_type.lower() == 'dog':
+    # Difference of Gaussian parameters
+    ksize = filter_size  # 31
+    if sigma:
+        sigmas = [sigma]
+    else:
+        sigmas = [1, 2, 3, 4]
+    if r_sigma:
+        r_sigmas = [r_sigma]
+    else:
+        r_sigmas = [1.1, 1.2, 1.5, 2, 2.5, 3]
+
+    # Generate DoG filters
+    tensor = get_dog_tensor(ksize, sigmas, r_sigmas)
+
+elif filter_type.lower() == 'gabor':
+    # Gabor filter parameters
+    ksize = (filter_size, filter_size)  # (31, 31)
+    if sigma:
+        sigmas = [sigma]
+        n_orients = 8
+    else:
+        sigmas = [2, 4]
+        n_orients = 4
+    thetas = np.linspace(0, np.pi, n_orients, endpoint=False)  # [0, np.pi/4, np.pi/2, np.pi*3/4]
+    if lambd:
+        lambdas = [lambd]
+    else:
+        lambdas = [8, 16, 32, 64]
+    n_phases = 4  # 1, 2, 4
+    psis = np.linspace(0, 2*np.pi, n_phases, endpoint=False)  # [0, np.pi/2, np.pi, 3*np.pi/2]  # [np.pi/2]
+    n_ratios = 2  # 1, 2, 4
+    gammas = np.linspace(1, 0, n_ratios, endpoint=False)
+
+    # Generate Gabor filters
+    tensor = get_gabor_tensor(ksize, sigmas, thetas, lambdas, gammas, psis)
+
 else:
-    sigmas = [2, 4]
-    n_orients = 4
-thetas = np.linspace(0, np.pi, n_orients, endpoint=False)  # [0, np.pi/4, np.pi/2, np.pi*3/4]
-if lambd:
-    lambdas = [lambd]
-else:
-    lambdas = [8, 16, 32, 64]
-n_phases = 4  # 1, 2, 4
-psis = np.linspace(0, 2*np.pi, n_phases, endpoint=False)  # [0, np.pi/2, np.pi, 3*np.pi/2]  # [np.pi/2]
-n_ratios = 2  # 1, 2, 4
-gammas = np.linspace(1, 0, n_ratios, endpoint=False)
+    sys.exit(f"Unknown filter type requested: {filter_type}")
 
 # fresh_data = True
 batch_size = 64
@@ -271,14 +322,11 @@ for noise_type in noise_types:
     model = VGG16(include_top=True, weights=weights, input_tensor=None,
                   input_shape=input_shape, pooling=None, classes=num_classes)
 
-    # Generate Gabor filters
-    gft = get_kernel_tensor(ksize, sigmas, thetas, lambdas, gammas, psis)
-
     # Modify standard VGG16 with hardcoded Gabor convolutional layer
     layers = [l for l in model.layers]
     # x = layers[0].output
     inp = Input(shape=x_train[0].shape)
-    x = Lambda(gabor_filter, arguments={'kernel_tensor': gft})(inp)
+    x = Lambda(convolve_tensor, arguments={'kernel_tensor': tensor})(inp)
     for l in range(2, len(layers)):
         x = layers[l](x)
 
