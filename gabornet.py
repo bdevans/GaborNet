@@ -60,7 +60,7 @@ def load_images(path):
     return image_set, X[shuffle], y[shuffle]
 
 
-def get_dog_tensor(ksize, sigmas, r_sigmas) -> kx1tensor:
+def get_dog_tensor(ksize, sigmas, r_sigmas):  # -> kx1tensor:
     # run a 5x5 gaussian blur then a 3x3 gaussian blr
     # blur5 = cv2.GaussianBlur(img,(5,5),0)
     # blur3 = cv2.GaussianBlur(img,(3,3),0)
