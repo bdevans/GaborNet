@@ -169,6 +169,7 @@ n_gpus = args.n_gpus
 save_loss = args.save_loss
 lambd = args.lambd
 sigma = args.sigma
+r_sigma = args.r_sigma
 
 weights = None  # 'imagenet'
 input_shape = (32, 32, 1)  # (224, 224, 3)
