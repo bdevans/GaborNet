@@ -68,7 +68,7 @@ def get_dog_tensor(ksize, sigmas, r_sigmas):  # -> kx1tensor:
     # s1 = sp.filter.gaussian_filter(img, k*sigma)
     # s2 = sp.filter.gaussian_filter(img, sigma)
     # dog = s1 - s2
-    n_kernels = len(sigmas) * len(r_sigmas)
+    n_kernels = len(sigmas) * len(r_sigmas) * 2
     kernels = []
     for sigma in sigmas:
         g_c = cv2.getGaussianKernel(ksize, sigma, ktype=cv2.CV_32F)
