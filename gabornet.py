@@ -77,6 +77,7 @@ def get_dog_tensor(ksize, sigmas, r_sigmas):  # -> kx1tensor:
             dog = g_c - g_s
             # dog /= np.sum(dog)  # Normalise
             dog = K.expand_dims(dog, -1)
+            dog = K.expand_dims(dog, -1)
             dog_on, dog_off = dog, dog * -1
             kernels.extend([dog_on, dog_off])
     assert len(kernels) == n_kernels
