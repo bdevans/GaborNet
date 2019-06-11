@@ -81,7 +81,7 @@ def get_dog_tensor(ksize, sigmas, r_sigmas):  # -> kx1tensor:
             kernels.extend([dog_on, dog_off])
     assert len(kernels) == n_kernels
     print(f"Created {n_kernels} kernels.")
-    return K.stack(kernels)
+    return K.stack(kernels, axis=-1)
 
 
 def get_gabor_tensor(ksize, sigmas, thetas, lambdas, gammas, psis):
