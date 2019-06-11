@@ -172,23 +172,23 @@ sigma = args.sigma
 r_sigma = args.r_sigma
 
 weights = None  # 'imagenet'
+pretrained_model = False
+data_augmentation = False
+batch_size = 64
+
+data_root = '/work/data/pixel/small'  # TODO: Pass in
 input_shape = (32, 32, 1)  # (224, 224, 3)
+# fresh_data = True
+num_classes = 10
 
 project_root = os.path.realpath(os.pardir)
-# save_dir = os.path.join(os.getcwd(), 'results')  # TODO: /workspace/results
 save_dir = os.path.join(project_root, 'results', filter_type, data_set, stimulus_set)
-# data_set = 'pixel'
-data_root = '/work/data/pixel/small'  # TODO: Pass in
-# stimulus_set = 'static'  # 'jitter'  # 'static'  # 'set_32_32'
+
 if noise_type is None:
     noise_types = ['Original', 'Salt-and-pepper', 'Additive', 'Single-pixel']
 else:  # Run with a single noise mask
     noise_types = [noise_type]
 test_conditions = ['Same', 'Diff', 'NoPix']
-
-pretrained_model = False
-data_augmentation = False
-
 
 if filter_type.lower() == 'dog':
     # Difference of Gaussian parameters
@@ -229,10 +229,6 @@ elif filter_type.lower() == 'gabor':
 
 else:
     sys.exit(f"Unknown filter type requested: {filter_type}")
-
-# fresh_data = True
-batch_size = 64
-num_classes = 10
 
 for noise_type in noise_types:
 
