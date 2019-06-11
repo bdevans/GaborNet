@@ -93,7 +93,9 @@ def get_gabor_tensor(ksize, sigmas, thetas, lambdas, gammas, psis):
             for lambd in lambdas:
                 for gamma in gammas:
                     for psi in psis:
-                        params = {'ksize': ksize, 'sigma': sigma, 'theta': theta, 'lambd': lambd, 'gamma': gamma, 'psi': psi}
+                        params = {'ksize': ksize, 'sigma': sigma,
+                                  'theta': theta, 'lambd': lambd,
+                                  'gamma': gamma, 'psi': psi}
                         gf = cv2.getGaborKernel(**params, ktype=cv2.CV_32F)
                         gf = K.expand_dims(gf, -1)
                         gabors.append(gf)
@@ -105,8 +107,8 @@ def get_gabor_tensor(ksize, sigmas, thetas, lambdas, gammas, psis):
 def convolve_tensor(x, kernel_tensor=None):
     '''
     conv2d
-    input tensor of shape [batch, in_height, in_width, in_channels]
-    kernel tensor of shape [filter_height, filter_width, in_channels, out_channels]
+    input tensor: [batch, in_height, in_width, in_channels]
+    kernel tensor: [filter_height, filter_width, in_channels, out_channels]
     '''
     # x = tf.image.rgb_to_grayscale(x)
     return K.conv2d(x, kernel_tensor, padding='same')
@@ -214,13 +216,15 @@ elif filter_type.lower() == 'gabor':
     else:
         sigmas = [2, 4]
         n_orients = 4
-    thetas = np.linspace(0, np.pi, n_orients, endpoint=False)  # [0, np.pi/4, np.pi/2, np.pi*3/4]
+    # [0, np.pi/4, np.pi/2, np.pi*3/4]
+    thetas = np.linspace(0, np.pi, n_orients, endpoint=False)
     if lambd:
         lambdas = [lambd]
     else:
         lambdas = [8, 16, 32, 64]
     n_phases = 4  # 1, 2, 4
-    psis = np.linspace(0, 2*np.pi, n_phases, endpoint=False)  # [0, np.pi/2, np.pi, 3*np.pi/2]  # [np.pi/2]
+    # [0, np.pi/2, np.pi, 3*np.pi/2]
+    psis = np.linspace(0, 2*np.pi, n_phases, endpoint=False)
     n_ratios = 2  # 1, 2, 4
     gammas = np.linspace(1, 0, n_ratios, endpoint=False)
 
