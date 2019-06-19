@@ -111,6 +111,8 @@ def convolve_tensor(x, kernel_tensor=None):
     kernel tensor: [filter_height, filter_width, in_channels, out_channels]
     '''
     # x = tf.image.rgb_to_grayscale(x)
+    print(x.shape)
+    print(kernel_tensor.shape)
     return K.conv2d(x, kernel_tensor, padding='same')
 
 
@@ -327,9 +329,17 @@ for noise_type in noise_types:
     layers = [l for l in model.layers]
     # x = layers[0].output
     inp = Input(shape=x_train[0].shape)
+    print(inp.shape)
     x = Lambda(convolve_tensor, arguments={'kernel_tensor': tensor})(inp)
     for l in range(2, len(layers)):
+        print(f"L{l} Input: {x.shape}")
+        print(layers[l].get_config())
+        if l == 2:
+            # Replace block1_conv2 due to different number of channels
+            x = Conv2D(64, kernel_size=(3,3), padding='same', activation='relu', kernel_initializer={'class_name': 'VarianceScaling', 'config': {'scale': 1.0, 'mode': 'fan_avg', 'distribution': 'uniform', 'seed': None}})(x)
+            continue
         x = layers[l](x)
+        print(f"L{l} Output: {x.shape}")
 
     model = Model(inputs=inp, outputs=x)
     # model.summary()
