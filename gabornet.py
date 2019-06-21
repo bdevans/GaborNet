@@ -338,9 +338,8 @@ for noise_type in noise_types:
             # Replace block1_conv2 due to different number of channels
             # x = Conv2D(64, kernel_size=(3, 3), padding='same', activation='relu', kernel_initializer={'class_name': 'VarianceScaling', 'config': {'scale': 1.0, 'mode': 'fan_avg', 'distribution': 'uniform', 'seed': None}})(x)
             x = Conv2D(**layers[layer].get_config())(x)
-            print(f"Output: {x.shape}")
-            continue
-        x = layers[layer](x)
+        else:
+            x = layers[layer](x)
         print(f"Output: {x.shape}")
 
     model = Model(inputs=inp, outputs=x)
