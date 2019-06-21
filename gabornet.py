@@ -330,7 +330,8 @@ for noise_type in noise_types:
     # x = layers[0].output
     inp = Input(shape=x_train[0].shape)
     print(inp.shape)
-    x = Lambda(convolve_tensor, arguments={'kernel_tensor': tensor})(inp)
+    x = Lambda(convolve_tensor, arguments={'kernel_tensor': tensor}
+               name=f"{filter_type}_conv")(inp)
     for layer in range(2, len(layers)):
         print(f"L{layer} Input: {x.shape};", end=' ')
         # print(layers[layer].get_config())
