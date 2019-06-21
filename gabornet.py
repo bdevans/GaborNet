@@ -340,7 +340,7 @@ for noise_type in noise_types:
             x = Conv2D(**layers[layer].get_config())(x)
             print(f"Output: {x.shape}")
             continue
-        x = layers[l](x)
+        x = layers[layer](x)
         print(f"Output: {x.shape}")
 
     model = Model(inputs=inp, outputs=x)
