@@ -331,15 +331,17 @@ for noise_type in noise_types:
     inp = Input(shape=x_train[0].shape)
     print(inp.shape)
     x = Lambda(convolve_tensor, arguments={'kernel_tensor': tensor})(inp)
-    for l in range(2, len(layers)):
-        print(f"L{l} Input: {x.shape}")
-        print(layers[l].get_config())
-        if l == 2:
+    for layer in range(2, len(layers)):
+        print(f"L{layer} Input: {x.shape};", end=' ')
+        # print(layers[layer].get_config())
+        if layer == 2 and x.shape[-1] != 64:
             # Replace block1_conv2 due to different number of channels
-            x = Conv2D(64, kernel_size=(3,3), padding='same', activation='relu', kernel_initializer={'class_name': 'VarianceScaling', 'config': {'scale': 1.0, 'mode': 'fan_avg', 'distribution': 'uniform', 'seed': None}})(x)
+            # x = Conv2D(64, kernel_size=(3, 3), padding='same', activation='relu', kernel_initializer={'class_name': 'VarianceScaling', 'config': {'scale': 1.0, 'mode': 'fan_avg', 'distribution': 'uniform', 'seed': None}})(x)
+            x = Conv2D(**layers[layer].get_config())(x)
+            print(f"Output: {x.shape}")
             continue
         x = layers[l](x)
-        print(f"L{l} Output: {x.shape}")
+        print(f"Output: {x.shape}")
 
     model = Model(inputs=inp, outputs=x)
     # model.summary()
